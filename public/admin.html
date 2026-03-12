@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>URBANSERVICE | Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-body { padding: 40px; background: #f8fafc; min-height: 100vh; }
+        .data-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { color: #6366f1; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; background: #e0e7ff; color: #4338ca; }
+    </style>
+</head>
+<body class="admin-body">
+    <h1>Admin Dashboard</h1>
+    <p>Viewing live data from MongoDB Atlas</p>
+
+    <div class="data-card">
+        <h2>Service Bookings</h2>
+        <table id="bookingsTable">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Service</th>
+                    <th>Address</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="data-card">
+        <h2>Professional Applications</h2>
+        <table id="appsTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Phone</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        async function loadAdminData() {
+            // Fetch Bookings
+            const resB = await fetch('/api/admin/bookings');
+            const bookings = await resB.json();
+            document.querySelector("#bookingsTable tbody").innerHTML = bookings.map(b => `
+                <tr>
+                    <td><b>${b.name}</b></td>
+                    <td>${b.service}</td>
+                    <td>${b.address}</td>
+                    <td><span class="badge">New</span></td>
+                </tr>
+            `).join('');
+
+            // Fetch Applications
+            const resA = await fetch('/api/admin/applications');
+            const apps = await resA.json();
+            document.querySelector("#appsTable tbody").innerHTML = apps.map(a => `
+                <tr>
+                    <td><b>${a.name}</b></td>
+                    <td>${a.service}</td>
+                    <td>${a.phone}</td>
+                    <td>${a.lat.toFixed(2)}, ${a.lng.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+        window.onload = loadAdminData;
+    </script>
+</body>
+</html>
