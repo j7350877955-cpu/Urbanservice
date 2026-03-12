@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 1. DATABASE CONNECTION (Replace with your actual string!)
-const mongoURI = "mongodb+srv://admin:YOUR_PASSWORD@cluster0.xxxx.mongodb.net/urbanservice?retryWrites=true&w=majority"; 
+const mongoURI = "mongodb+srv://Aryanpopalghat:Aryanpopalghat23@urbanservice.w3smd8n.mongodb.net/?appName=urbanservice/urbanservice?retryWrites=true&w=majority"; 
 
 mongoose.connect(mongoURI)
     .then(() => console.log("✅ MongoDB Connected Successfully!"))
