@@ -3,7 +3,7 @@ let markers = {}; // To keep track of markers and move them smoothly
 
 // --- 1. Your Custom Ratings (Decided by You) ---
 const customRatings = {
-    "Anuj Pawar": "⭐ 4.9",
+    "Anuj Pawar": "⭐ 4.8",
     "John Doe": "⭐ 4.7",
     "Default": "⭐ 4.5"
 };
