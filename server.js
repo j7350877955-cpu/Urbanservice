@@ -26,6 +26,29 @@ const Booking = mongoose.model('Booking', new mongoose.Schema({
     name: String, service: String, phone: String, address: String, date: { type: Date, default: Date.now }
 }));
 
+// ... existing imports ...
+
+const workerSchema = new mongoose.Schema({
+    name: String, 
+    service: String, 
+    phone: String, 
+    lat: Number, 
+    lng: Number,
+    rating: { type: String, default: "⭐ 5.0" } // Manual Rating: Edit this in Atlas
+});
+const Worker = mongoose.model('Worker', workerSchema);
+
+// --- LIVE TRACKING ROUTE ---
+app.post('/api/worker/update-location', async (req, res) => {
+    try {
+        const { phone, lat, lng } = req.body;
+        await Worker.findOneAndUpdate({ phone }, { lat, lng });
+        res.sendStatus(200);
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ... existing booking routes ...
+
 // API ROUTES
 app.post('/api/apply', async (req, res) => {
     try {
