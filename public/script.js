@@ -154,3 +154,23 @@ async function sendBooking() {
         alert("❌ Server is offline or connection refused.");
     }
 }
+
+// Make sure this specific part is in your script.js
+async function refreshMarkers() {
+    try {
+        const res = await fetch('/api/workers'); // Calls the backend
+        const workers = await res.json();
+        
+        console.log("Workers found:", workers.length); // Check console for this!
+
+        workers.forEach(w => {
+            if (workerMarkers[w.phone]) {
+                workerMarkers[w.phone].setLatLng([w.lat, w.lng]);
+            } else {
+                const marker = L.marker([w.lat, w.lng]).addTo(map)
+                    .bindPopup(`<b>${w.name}</b><br>${w.service}<br>${w.rating}`);
+                workerMarkers[w.phone] = marker;
+            }
+        });
+    } catch (e) { console.error("Map Load Error:", e); }
+}
