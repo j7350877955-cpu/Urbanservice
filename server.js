@@ -10,55 +10,53 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// IMPORTANT: Added /urbanservice before the '?' to ensure data goes to the right place
+// --- REPLACE THIS WITH YOUR NEW STRING FROM STEP 1 ---
 const mongoURI = "mongodb+srv://Aryanpopalghat:aryan2308@urbanservice.w3smd8n.mongodb.net/?appName=urbanservice";
 
-mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 })
-    .then(() => console.log("✅ DATABASE CONNECTED TO 'urbanservice'"))
-    .catch(err => console.error("❌ DATABASE ERROR:", err.message));
+mongoose.connect(mongoURI, { 
+    serverSelectionTimeoutMS: 5000,
+    bufferCommands: false // Forces an immediate error instead of "Buffering"
+})
+.then(() => console.log("✅ DATABASE CONNECTED"))
+.catch(err => console.error("❌ DATABASE ERROR:", err.message));
 
-// MODELS
-const Worker = mongoose.model('Worker', new mongoose.Schema({
+// SCHEMAS
+const workerSchema = new mongoose.Schema({
     name: String, service: String, phone: String, lat: Number, lng: Number,
     rating: { type: String, default: "⭐ 5.0" }
-}));
+});
+const Worker = mongoose.model('Worker', workerSchema);
 
-const Booking = mongoose.model('Booking', new mongoose.Schema({
+const bookingSchema = new mongoose.Schema({
     name: String, service: String, phone: String, address: String, 
     date: { type: Date, default: Date.now }
-}));
+});
+const Booking = mongoose.model('Booking', bookingSchema);
 
-// API ROUTES
+// ROUTES
 app.post('/api/bookings', async (req, res) => {
     try {
         const b = new Booking(req.body);
         await b.save();
-        res.status(201).json({ message: "Booking Saved!" });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+        res.status(201).json({ message: "Booking Confirmed!" });
+    } catch (e) {
+        console.error("Booking Fail:", e.message);
+        res.status(500).json({ error: "DB Error: " + e.message });
+    }
 });
 
 app.post('/api/apply', async (req, res) => {
     try {
         const w = new Worker(req.body);
         await w.save();
-        res.status(201).json({ message: "Worker Saved!" });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+        res.status(201).json({ message: "Application Successful!" });
+    } catch (e) {
+        res.status(500).json({ error: "DB Error: " + e.message });
+    }
 });
 
 app.get('/api/workers', async (req, res) => {
-    try {
-        const data = await Worker.find();
-        res.json(data);
-    } catch (e) { res.json([]); }
+    try { res.json(await Worker.find()); } catch (e) { res.json([]); }
 });
 
-// ADMIN DATA ROUTE
-app.get('/api/admin/data', async (req, res) => {
-    try {
-        const bookings = await Booking.find().sort({ date: -1 });
-        const workers = await Worker.find();
-        res.json({ bookings, workers });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-app.listen(PORT, () => console.log(`🚀 Server running`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
