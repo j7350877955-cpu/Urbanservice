@@ -10,35 +10,27 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// REPLACE THIS with your exact URI from MongoDB Atlas "Connect" menu
-const mongoURI = "mongodb+srv://admin:Urban123@cluster0.xxxxx.mongodb.net/urbanservice?retryWrites=true&w=majority";
+// --- REPLACE THIS WITH YOUR NEW CLEAN PASSWORD ---
+const mongoURI = "mongodb+srv://admin:ServicePro123@cluster0.xxxxx.mongodb.net/urbanservice?retryWrites=true&w=majority";
 
-mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 })
-    .then(() => console.log("✅ Database Connected"))
-    .catch(err => console.error("❌ Connection Error:", err.message));
+mongoose.connect(mongoURI, { 
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 10000 
+})
+.then(() => console.log("✅ SYSTEM ONLINE: MongoDB Connected"))
+.catch(err => console.error("❌ SYSTEM OFFLINE: Database Error ->", err.message));
 
 // SCHEMAS
 const Worker = mongoose.model('Worker', new mongoose.Schema({
-    name: String, service: String, phone: String, lat: Number, lng: Number
+    name: String, service: String, phone: String, lat: Number, lng: Number,
+    rating: { type: String, default: "⭐ 5.0" } 
 }));
 
 const Booking = mongoose.model('Booking', new mongoose.Schema({
     name: String, service: String, phone: String, address: String, date: { type: Date, default: Date.now }
 }));
 
-// ... existing imports ...
-
-const workerSchema = new mongoose.Schema({
-    name: String, 
-    service: String, 
-    phone: String, 
-    lat: Number, 
-    lng: Number,
-    rating: { type: String, default: "⭐ 5.0" } // Manual Rating: Edit this in Atlas
-});
-const Worker = mongoose.model('Worker', workerSchema);
-
-// --- LIVE TRACKING ROUTE ---
+// ROUTES
 app.post('/api/worker/update-location', async (req, res) => {
     try {
         const { phone, lat, lng } = req.body;
@@ -47,29 +39,20 @@ app.post('/api/worker/update-location', async (req, res) => {
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ... existing booking routes ...
-
-// API ROUTES
-app.post('/api/apply', async (req, res) => {
-    try {
-        const newWorker = new Worker({
-            name: req.body.workerName,
-            service: req.body.workerService,
-            phone: req.body.workerPhone,
-            lat: parseFloat(req.body.workerLat),
-            lng: parseFloat(req.body.workerLng)
-        });
-        await newWorker.save();
-        res.status(201).json({ message: "Application Successful!" });
-    } catch (e) { res.status(500).json({ error: "DB Error: " + e.message }); }
-});
-
 app.post('/api/bookings', async (req, res) => {
     try {
-        const newBooking = new Booking(req.body);
-        await newBooking.save();
-        res.status(201).json({ message: "Service Booked Successfully!" });
-    } catch (e) { res.status(500).json({ error: "Booking Error: " + e.message }); }
+        const b = new Booking(req.body);
+        await b.save();
+        res.status(201).json({ message: "Success! Appointment Booked." });
+    } catch (e) { res.status(500).json({ error: "Database Lock: " + e.message }); }
+});
+
+app.post('/api/apply', async (req, res) => {
+    try {
+        const w = new Worker(req.body);
+        await w.save();
+        res.status(201).json({ message: "Success! Application Received." });
+    } catch (e) { res.status(500).json({ error: "Database Lock: " + e.message }); }
 });
 
 app.get('/api/workers', async (req, res) => {
@@ -77,9 +60,11 @@ app.get('/api/workers', async (req, res) => {
 });
 
 app.get('/api/admin/data', async (req, res) => {
-    const bookings = await Booking.find().sort({ date: -1 });
-    const apps = await Worker.find();
-    res.json({ bookings, apps });
+    try {
+        const bookings = await Booking.find().sort({ date: -1 });
+        const apps = await Worker.find();
+        res.json({ bookings, apps });
+    } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.listen(PORT, () => console.log(`🚀 Live on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server active on port ${PORT}`));
