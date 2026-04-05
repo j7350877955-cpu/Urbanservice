@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // IMPORTANT: Added /urbanservice before the '?' to ensure data goes to the right place
-const mongoURI = "mongodb+srv://admin:Service123@cluster0.abcde.mongodb.net/urbanservice?retryWrites=true&w=majority";
+const mongoURI = "mongodb+srv://Aryanpopalghat:aryan2308@urbanservice.w3smd8n.mongodb.net/?appName=urbanservice";
 
 mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 })
     .then(() => console.log("✅ DATABASE CONNECTED TO 'urbanservice'"))
