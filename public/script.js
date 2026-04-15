@@ -58,3 +58,25 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+// In script.js
+async function bookService(serviceName) {
+    const bookingData = {
+        serviceName: serviceName,
+        customerName: "Guest User", // You'd normally get this from a login form
+        address: "123 Main St, New York"
+    };
+
+    try {
+        const response = await fetch('http://localhost:5000/api/book', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bookingData)
+        });
+
+        if (response.ok) {
+            alert(`Success! Your booking for ${serviceName} is saved in MongoDB.`);
+        }
+    } catch (error) {
+        console.error("Error booking service:", error);
+    }
+}
