@@ -8,6 +8,7 @@ const PORT = 5000;
 // Middleware
 app.use(express.json());
 app.use(cors());
+app.use(express.static('public'));
 
 // --- MongoDB Connection ---
 // Hardcoded URI as requested
