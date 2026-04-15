@@ -1,81 +1,76 @@
+// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+require('dotenv').config();
+
+const { Booking, Application, WorkerLocation } = require('./models');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(express.json());
-app.use(cors());
-app.use(express.static('public'));
+app.use(cors()); // Allows your frontend to communicate with the backend
+app.use(express.json()); // Parses incoming JSON requests
 
-// --- MongoDB Connection ---
-// Hardcoded URI as requested
-const mongoURI = "mongodb+srv://Aryanpopalghat:aryan2308@urbanservice.w3smd8n.mongodb.net/urbanservice?retryWrites=true&w=majority";
+// MongoDB Connection
+// Replace process.env.MONGO_URI with your actual MongoDB connection string in a .env file
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/urbanservice')
+    .then(() => console.log('Connected to MongoDB'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
-mongoose.connect(mongoURI)
-    .then(() => console.log("✅ MongoDB connected successfully"))
-    .catch(err => console.log("❌ MongoDB connection error:", err));
 
-// --- Database Schemas ---
+// --- API ROUTES ---
 
-// 1. Service Schema (For browsing available services)
-const serviceSchema = new mongoose.Schema({
-    name: String,
-    category: String,
-    price: Number,
-    rating: Number,
-    image: String
-});
-
-const Service = mongoose.model('Service', serviceSchema);
-
-// 2. Booking Schema (For when a user clicks 'Book Now')
-const bookingSchema = new mongoose.Schema({
-    serviceName: String,
-    customerName: String,
-    address: String,
-    date: { type: Date, default: Date.now },
-    status: { type: String, default: 'Pending' }
-});
-
-const Booking = mongoose.model('Booking', bookingSchema);
-
-// --- API Routes ---
-
-// Welcome Route
-app.get('/', (req, res) => {
-    res.send('Service Marketplace API is running...');
-});
-
-// GET: Fetch all services from the database
-app.get('/api/services', async (req, res) => {
+// 1. Create a New Booking
+app.post('/api/bookings', async (req, res) => {
     try {
-        const services = await Service.find();
-        res.json(services);
-    } catch (err) {
-        res.status(500).json({ error: "Could not fetch services" });
+        const newBooking = new Booking(req.body);
+        await newBooking.save();
+        res.status(201).json({ message: 'Booking confirmed successfully!', booking: newBooking });
+    } catch (error) {
+        res.status(400).json({ error: 'Failed to create booking', details: error.message });
     }
 });
 
-// POST: Create a new booking
-app.post('/api/book', async (req, res) => {
+// 2. Submit a Job Application
+app.post('/api/applications', async (req, res) => {
     try {
-        const newBooking = new Booking({
-            serviceName: req.body.serviceName,
-            customerName: req.body.customerName || "Guest User",
-            address: req.body.address || "No address provided"
-        });
-
-        const savedBooking = await newBooking.save();
-        res.status(201).json({ message: "Booking successful!", data: savedBooking });
-    } catch (err) {
-        res.status(400).json({ error: "Booking failed", details: err.message });
+        const newApplication = new Application(req.body);
+        await newApplication.save();
+        res.status(201).json({ message: 'Application submitted successfully!' });
+    } catch (error) {
+        res.status(400).json({ error: 'Failed to submit application', details: error.message });
     }
 });
 
-// Start the Server
+// 3. Update Worker Location (Simulated by a worker app)
+app.post('/api/tracking/update', async (req, res) => {
+    const { workerId, latitude, longitude } = req.body;
+    try {
+        const location = await WorkerLocation.findOneAndUpdate(
+            { workerId },
+            { latitude, longitude, lastUpdated: Date.now() },
+            { new: true, upsert: true } // Creates a new record if one doesn't exist
+        );
+        res.status(200).json(location);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update location' });
+    }
+});
+
+// 4. Get Worker Location (Polled by the customer frontend)
+app.get('/api/tracking/:workerId', async (req, res) => {
+    try {
+        const location = await WorkerLocation.findOne({ workerId: req.params.workerId });
+        if (!location) return res.status(404).json({ error: 'Worker not found' });
+        res.status(200).json(location);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch location' });
+    }
+});
+
+// Start Server
 app.listen(PORT, () => {
-    console.log(`🚀 Server is live at http://localhost:${PORT}`);
+    console.log(`URBANSERVICE Backend running on http://localhost:${PORT}`);
 });
