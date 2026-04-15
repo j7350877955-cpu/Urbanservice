@@ -67,4 +67,11 @@ app.get('/api/admin/applications', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch applications" });
     }
+    require('dotenv').config(); // Load variables from .env
+const mongoose = require('mongoose');
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Cloud Database Connected"))
+  .catch(err => console.log("❌ DB Error:", err));
 });
+
