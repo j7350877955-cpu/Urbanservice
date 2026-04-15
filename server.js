@@ -1,62 +1,80 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 5000;
 
-app.use(cors());
+// Middleware
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
 
-// --- REPLACE THIS WITH YOUR NEW STRING FROM STEP 1 ---
-const mongoURI = "mongodb+srv://Aryanpopalghat:aryan2308@urbanservice.w3smd8n.mongodb.net/?appName=urbanservice";
+// --- MongoDB Connection ---
+// Hardcoded URI as requested
+const mongoURI = "mongodb+srv://Aryanpopalghat:aryan2308@urbanservice.w3smd8n.mongodb.net/urbanservice?retryWrites=true&w=majority";
 
-mongoose.connect(mongoURI, { 
-    serverSelectionTimeoutMS: 5000,
-    bufferCommands: false // Forces an immediate error instead of "Buffering"
-})
-.then(() => console.log("✅ DATABASE CONNECTED"))
-.catch(err => console.error("❌ DATABASE ERROR:", err.message));
+mongoose.connect(mongoURI)
+    .then(() => console.log("✅ MongoDB connected successfully"))
+    .catch(err => console.log("❌ MongoDB connection error:", err));
 
-// SCHEMAS
-const workerSchema = new mongoose.Schema({
-    name: String, service: String, phone: String, lat: Number, lng: Number,
-    rating: { type: String, default: "⭐ 5.0" }
+// --- Database Schemas ---
+
+// 1. Service Schema (For browsing available services)
+const serviceSchema = new mongoose.Schema({
+    name: String,
+    category: String,
+    price: Number,
+    rating: Number,
+    image: String
 });
-const Worker = mongoose.model('Worker', workerSchema);
 
+const Service = mongoose.model('Service', serviceSchema);
+
+// 2. Booking Schema (For when a user clicks 'Book Now')
 const bookingSchema = new mongoose.Schema({
-    name: String, service: String, phone: String, address: String, 
-    date: { type: Date, default: Date.now }
+    serviceName: String,
+    customerName: String,
+    address: String,
+    date: { type: Date, default: Date.now },
+    status: { type: String, default: 'Pending' }
 });
+
 const Booking = mongoose.model('Booking', bookingSchema);
 
-// ROUTES
-app.post('/api/bookings', async (req, res) => {
+// --- API Routes ---
+
+// Welcome Route
+app.get('/', (req, res) => {
+    res.send('Service Marketplace API is running...');
+});
+
+// GET: Fetch all services from the database
+app.get('/api/services', async (req, res) => {
     try {
-        const b = new Booking(req.body);
-        await b.save();
-        res.status(201).json({ message: "Booking Confirmed!" });
-    } catch (e) {
-        console.error("Booking Fail:", e.message);
-        res.status(500).json({ error: "DB Error: " + e.message });
+        const services = await Service.find();
+        res.json(services);
+    } catch (err) {
+        res.status(500).json({ error: "Could not fetch services" });
     }
 });
 
-app.post('/api/apply', async (req, res) => {
+// POST: Create a new booking
+app.post('/api/book', async (req, res) => {
     try {
-        const w = new Worker(req.body);
-        await w.save();
-        res.status(201).json({ message: "Application Successful!" });
-    } catch (e) {
-        res.status(500).json({ error: "DB Error: " + e.message });
+        const newBooking = new Booking({
+            serviceName: req.body.serviceName,
+            customerName: req.body.customerName || "Guest User",
+            address: req.body.address || "No address provided"
+        });
+
+        const savedBooking = await newBooking.save();
+        res.status(201).json({ message: "Booking successful!", data: savedBooking });
+    } catch (err) {
+        res.status(400).json({ error: "Booking failed", details: err.message });
     }
 });
 
-app.get('/api/workers', async (req, res) => {
-    try { res.json(await Worker.find()); } catch (e) { res.json([]); }
+// Start the Server
+app.listen(PORT, () => {
+    console.log(`🚀 Server is live at http://localhost:${PORT}`);
 });
-
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
