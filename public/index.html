@@ -3,272 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ServicePros</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>URBANSERVICE | Home Services</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        /* Soft, Modern Color Palette & Base Styles */
+        :root {
+            --primary-color: #64b5f6; /* Soft Blue */
+            --primary-light: #e3f2fd;
+            --text-main: #37474f;
+            --text-light: #78909c;
+            --bg-color: #f9fbfd;
+            --white: #ffffff;
+            --shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
 
-    <link rel="stylesheet" href="style.css">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        header {
+            background-color: var(--white);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            letter-spacing: 1px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-main);
+            margin-left: 1.5rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 5rem 5%;
+            background-color: var(--primary-light);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .hero p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Services Grid */
+        .section-title {
+            text-align: center;
+            margin: 4rem 0 2rem;
+            font-size: 2rem;
+        }
+
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 0 5%;
+            margin-bottom: 4rem;
+        }
+
+        .service-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .service-info {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        /* Forms & Tracking Layout */
+        .interactive-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding: 0 5% 4rem;
+        }
+
+        .panel {
+            flex: 1;
+            min-width: 300px;
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel h3 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 0.5rem;
+        }
+
+        input, select, button, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #42a5f5;
+        }
+
+        /* Map Container */
+        #map {
+            height: 350px;
+            width: 100%;
+            border-radius: 8px;
+            z-index: 1;
+        }
+        
+        .tracker-info {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--text-main);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+    </style>
 </head>
 <body>
 
-    <header id="header">
-        <div class="logo">Service<span>Pros</span></div>
-        <div class="nav-actions">
-            <button class="login-btn">Log in</button>
-            <button class="btn-primary">Sign up</button>
-        </div>
+    <header>
+        <div class="logo">URBANSERVICE</div>
+        <nav>
+            <a href="#services">Services</a>
+            <a href="#booking">Book Now</a>
+            <a href="#join">Join the Team</a>
+        </nav>
     </header>
 
-    <div class="hero">
-        <h1>Home Services at Your Doorstep</h1>
-        <p>Expert professionals for cleaning, repair, and beauty services.</p>
-        
-        <div class="search-container">
-            <div class="search-box">
-                <i class="fa-solid fa-location-dot"></i>
-                <select id="location">
-                    <option value="ny">New York</option>
-                    <option value="la">Los Angeles</option>
-                    <option value="ch">Chicago</option>
-                    <option value="tx">Texas</option>
-                </select>
+    <section class="hero">
+        <h1>Professional Home Services, On Demand</h1>
+        <p>Expert cleaning, repairs, and salon services delivered right to your doorstep. Track your professional in real-time.</p>
+    </section>
+
+    <h2 class="section-title" id="services">Our Services</h2>
+    <section class="services">
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop" alt="Home Cleaning">
+            <div class="service-info">
+                <h3>Home Cleaning</h3>
+                <p>Deep cleaning for a sparkling home.</p>
             </div>
-            <div class="divider"></div>
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Search for 'AC Repair'...">
-            </div>
-            <button class="search-btn" onclick="handleSearch()">Book Now</button>
         </div>
-    </div>
-
-    <main>
-        <section>
-            <h2 class="section-title">What are you looking for?</h2>
-            <div class="category-grid">
-                <div class="category-card" onclick="selectService('Cleaning')">
-                    <div class="category-icon"><i class="fa-solid fa-broom"></i></div>
-                    <h3>Cleaning</h3>
-                </div>
-                <div class="category-card" onclick="selectService('Plumbing')">
-                    <div class="category-icon"><i class="fa-solid fa-wrench"></i></div>
-                    <h3>Plumbing</h3>
-                </div>
-                <div class="category-card" onclick="selectService('Electrician')">
-                    <div class="category-icon"><i class="fa-solid fa-bolt"></i></div>
-                    <h3>Electrician</h3>
-                </div>
-                <div class="category-card" onclick="selectService('Beauty & Salon')">
-                    <div class="category-icon"><i class="fa-solid fa-spa"></i></div>
-                    <h3>Beauty & Salon</h3>
-                </div>
-                <div class="category-card" onclick="selectService('AC Repair')">
-                    <div class="category-icon"><i class="fa-regular fa-snowflake"></i></div>
-                    <h3>AC Repair</h3>
-                </div>
-                <div class="category-card" onclick="selectService('Appliance Repair')">
-                    <div class="category-icon"><i class="fa-solid fa-plug"></i></div>
-                    <h3>Appliance Repair</h3>
-                </div>
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=500&auto=format&fit=crop" alt="AC Repair">
+            <div class="service-info">
+                <h3>AC Repair</h3>
+                <p>Expert servicing and cooling repair.</p>
             </div>
-        </section>
-
-        <section>
-            <h2 class="section-title">Popular Services</h2>
-            <div class="popular-scroll">
-                <div class="service-card">
-                    <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80&w=400" alt="Deep Cleaning" class="service-img">
-                    <div class="service-info">
-                        <div class="service-header">
-                            <h3 class="service-title">Deep Home Cleaning</h3>
-                            <div class="rating"><i class="fa-solid fa-star"></i> 4.8</div>
-                        </div>
-                        <p class="price">Starts from <span>$129</span></p>
-                        <button class="book-btn" onclick="bookService('Deep Home Cleaning')">Book Now</button>
-                    </div>
-                </div>
-                <div class="service-card">
-                    <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=400" alt="AC Service" class="service-img">
-                    <div class="service-info">
-                        <div class="service-header">
-                            <h3 class="service-title">AC Service & Repair</h3>
-                            <div class="rating"><i class="fa-solid fa-star"></i> 4.9</div>
-                        </div>
-                        <p class="price">Starts from <span>$59</span></p>
-                        <button class="book-btn" onclick="bookService('AC Service & Repair')">Book Now</button>
-                    </div>
-                </div>
-                <div class="service-card">
-                    <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=400" alt="Salon at Home" class="service-img">
-                    <div class="service-info">
-                        <div class="service-header">
-                            <h3 class="service-title">Salon for Women</h3>
-                            <div class="rating"><i class="fa-solid fa-star"></i> 4.7</div>
-                        </div>
-                        <p class="price">Starts from <span>$39</span></p>
-                        <button class="book-btn" onclick="bookService('Salon for Women')">Book Now</button>
-                    </div>
-                </div>
-                <div class="service-card">
-                    <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=400" alt="Plumbing" class="service-img">
-                    <div class="service-info">
-                        <div class="service-header">
-                            <h3 class="service-title">Plumbing Experts</h3>
-                            <div class="rating"><i class="fa-solid fa-star"></i> 4.6</div>
-                        </div>
-                        <p class="price">Starts from <span>$49</span></p>
-                        <button class="book-btn" onclick="bookService('Plumbing Experts')">Book Now</button>
-                    </div>
-                </div>
+        </div>
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500&auto=format&fit=crop" alt="Home Salon">
+            <div class="service-info">
+                <h3>Home Salon</h3>
+                <p>Relaxing beauty treatments at home.</p>
             </div>
-        </section>
-
-        <section>
-            <h2 class="section-title">How It Works</h2>
-            <div class="how-it-works">
-                <div class="step-card">
-                    <div class="step-icon">
-                        <i class="fa-solid fa-hand-pointer"></i>
-                        <div class="step-number">1</div>
-                    </div>
-                    <h3>Choose Service</h3>
-                    <p style="color: var(--text-light); margin-top: 10px;">Select the service you need from our wide range of categories.</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-icon">
-                        <i class="fa-regular fa-calendar-check"></i>
-                        <div class="step-number">2</div>
-                    </div>
-                    <h3>Select Time Slot</h3>
-                    <p style="color: var(--text-light); margin-top: 10px;">Pick a convenient date and time for the professional to visit.</p>
-                </div>
-                <div class="step-card">
-                    <div class="step-icon">
-                        <i class="fa-solid fa-user-shield"></i>
-                        <div class="step-number">3</div>
-                    </div>
-                    <h3>Professional Arrives</h3>
-                    <p style="color: var(--text-light); margin-top: 10px;">Our verified expert arrives at your doorstep to get the job done.</p>
-                </div>
+        </div>
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1607472586893-edb57cbceb42?w=500&auto=format&fit=crop" alt="Plumber">
+            <div class="service-info">
+                <h3>Plumber</h3>
+                <p>Fix leaks and pipe issues instantly.</p>
             </div>
-        </section>
-
-        <section>
-            <h2 class="section-title">What Our Customers Say</h2>
-            <div class="testimonials">
-                <div class="review-card">
-                    <div class="reviewer">
-                        <div class="avatar"><i class="fa-regular fa-user"></i></div>
-                        <div>
-                            <h4>Sarah Jenkins</h4>
-                            <div class="review-stars">
-                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="review-text">"The AC repair guy was on time, very professional, and fixed my unit in under an hour. Highly recommend this app!"</p>
-                </div>
-                <div class="review-card">
-                    <div class="reviewer">
-                        <div class="avatar"><i class="fa-regular fa-user"></i></div>
-                        <div>
-                            <h4>Michael Ross</h4>
-                            <div class="review-stars">
-                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="review-text">"Booked a deep cleaning service before moving into my new apartment. The team did an absolute fantastic job. Worth every penny."</p>
-                </div>
-                <div class="review-card">
-                    <div class="reviewer">
-                        <div class="avatar"><i class="fa-regular fa-user"></i></div>
-                        <div>
-                            <h4>Emily Chen</h4>
-                            <div class="review-stars">
-                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="review-text">"Getting salon services at home has been a game changer for me. The beautician was polite and the hygiene standards were top-notch."</p>
-                </div>
+        </div>
+        <div class="service-card">
+            <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=500&auto=format&fit=crop" alt="Electrician">
+            <div class="service-info">
+                <h3>Electrician</h3>
+                <p>Safe and reliable electrical work.</p>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
+
+    <h2 class="section-title" id="booking">Booking & Live Tracking</h2>
+    <section class="interactive-section">
+        <div class="panel">
+            <h3>Book a Service</h3>
+            <form id="bookingForm">
+                <input type="text" placeholder="Full Name" required>
+                <input type="tel" placeholder="Phone Number" required>
+                <select required>
+                    <option value="" disabled selected>Select a Service</option>
+                    <option value="cleaning">Home Cleaning</option>
+                    <option value="ac">AC Repair</option>
+                    <option value="salon">Home Salon</option>
+                    <option value="plumber">Plumber</option>
+                    <option value="electrician">Electrician</option>
+                </select>
+                <textarea placeholder="Your Address" rows="3" required></textarea>
+                <button type="submit">Confirm Booking</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h3>Worker Live Tracking</h3>
+            <div id="map"></div>
+            <div class="tracker-info" id="trackingStatus">Awaiting booking confirmation to show worker location...</div>
+        </div>
+    </section>
+
+    <h2 class="section-title" id="join">Join as a Professional</h2>
+    <section class="interactive-section">
+        <div class="panel" style="max-width: 600px; margin: 0 auto;">
+            <h3>Partner With Us</h3>
+            <form id="jobForm">
+                <input type="text" placeholder="Full Name" required>
+                <input type="tel" placeholder="Phone Number" required>
+                <select required>
+                    <option value="" disabled selected>Your Expertise</option>
+                    <option value="cleaning">Cleaning Professional</option>
+                    <option value="ac">AC Technician</option>
+                    <option value="salon">Beautician</option>
+                    <option value="plumber">Plumber</option>
+                    <option value="electrician">Electrician</option>
+                </select>
+                <input type="number" placeholder="Years of Experience" required>
+                <button type="submit">Submit Application</button>
+            </form>
+        </div>
+    </section>
 
     <footer>
-        <div class="footer-grid">
-            <div class="footer-col">
-                <div class="logo" style="margin-bottom: 1rem;">Service<span>Pros</span></div>
-                <p style="color: var(--text-light); font-size: 0.9rem;">Your trusted partner for home services. Quality, reliability, and satisfaction guaranteed.</p>
-            </div>
-            <div class="footer-col">
-                <h4>Company</h4>
-                <ul>
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Terms & Conditions</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Careers</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Help & Support</h4>
-                <ul>
-                    <li><a href="#">Contact Us</a></li>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Partner with us</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Connect</h4>
-                <div class="social-icons">
-                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            &copy; 2026 ServicePros Inc. All rights reserved.
-        </div>
+        <p>&copy; 2026 URBANSERVICE. All Rights Reserved.</p>
     </footer>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // Sticky Header Shadow on Scroll
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('header');
-            if (window.scrollY > 10) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
+        // --- 1. Map Initialization (Leaflet.js) ---
+        // Default center coordinates (e.g., center of a city)
+        const map = L.map('map').setView([28.6139, 77.2090], 13); 
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        let workerMarker;
+        let trackingInterval;
+
+        // --- 2. Booking Submission & Tracking Simulation ---
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Booking Confirmed! Your professional has been dispatched.');
+            
+            const statusText = document.getElementById('trackingStatus');
+            statusText.innerHTML = "<strong>Status:</strong> Worker is on the way. Tracking live...";
+            statusText.style.color = "#4caf50";
+
+            // If a marker already exists, remove it
+            if (workerMarker) {
+                map.removeLayer(workerMarker);
+                clearInterval(trackingInterval);
             }
+
+            // Start worker at a nearby coordinate
+            let currentLat = 28.6139 + (Math.random() - 0.5) * 0.05;
+            let currentLng = 77.2090 + (Math.random() - 0.5) * 0.05;
+            
+            workerMarker = L.marker([currentLat, currentLng]).addTo(map)
+                .bindPopup('Your Professional')
+                .openPopup();
+            
+            map.setView([currentLat, currentLng], 14);
+
+            // Simulate live movement
+            trackingInterval = setInterval(() => {
+                // Move the marker slightly to simulate driving
+                currentLat += (Math.random() - 0.5) * 0.001;
+                currentLng += (Math.random() - 0.5) * 0.001;
+                workerMarker.setLatLng([currentLat, currentLng]);
+                map.panTo([currentLat, currentLng]);
+            }, 3000); // Updates every 3 seconds
         });
 
-        // Simple Search Logic
-        function handleSearch() {
-            const input = document.getElementById('searchInput').value;
-            const location = document.getElementById('location').options[document.getElementById('location').selectedIndex].text;
-            
-            if(input.trim() === '') {
-                alert(`Please enter a service to search in ${location}.`);
-            } else {
-                alert(`Searching for '${input}' in ${location}... \n(This would route to a search results page)`);
-            }
-        }
-
-        // Category Selection
-        function selectService(categoryName) {
-            document.getElementById('searchInput').value = categoryName;
-            document.getElementById('searchInput').focus();
-        }
-
-        // Book Button Actions
-        function bookService(serviceName) {
-            alert(`Opening booking flow for: ${serviceName}\n(This would open a modal to select a time slot)`);
-        }
+        // --- 3. Job Application Submission ---
+        document.getElementById('jobForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Application Submitted! Our recruitment team will contact you soon.');
+            this.reset();
+        });
     </script>
 </body>
 </html>
