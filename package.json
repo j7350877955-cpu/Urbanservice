@@ -1,14 +1,21 @@
 {
-  "name": "urbanservice",
+  "name": "service-pros-marketplace",
   "version": "1.0.0",
-  "description": "Professional Home Services App",
-  "main": "server.js",
+  "description": "A modern home services marketplace landing page inspired by Urban Company.",
+  "main": "index.html",
   "scripts": {
-    "start": "node server.js"
+    "start": "browser-sync start --server --files '*.html, *.css, *.js'",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.5.0",
-    "cors": "^2.8.5"
+  "keywords": [
+    "marketplace",
+    "home-services",
+    "frontend",
+    "ui-ux"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync": "^3.0.0"
   }
 }
